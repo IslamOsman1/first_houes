@@ -1,0 +1,97 @@
+{
+  "settings": {
+    "companyName": "فرست هاوس للمقاولات",
+    "tagline": "نبني رؤيتك على أرض الواقع",
+    "heroTitle": "خبرة في البناء وجودة تدوم",
+    "heroText": "نقدم حلول المقاولات والتشطيبات وإدارة المشروعات بأعلى معايير الجودة والالتزام بالمواعيد.",
+    "phone": "+20 100 000 0000",
+    "whatsapp": "201000000000",
+    "email": "info@firsthouse.com",
+    "address": "القاهرة، جمهورية مصر العربية",
+    "facebook": "#",
+    "instagram": "#",
+    "yearsExperience": "12+",
+    "completedProjects": "180+",
+    "happyClients": "150+",
+    "engineers": "25+"
+  },
+  "services": [
+    {
+      "id": "srv-1",
+      "title": "المقاولات العامة",
+      "description": "تنفيذ المشروعات السكنية والتجارية والإدارية بداية من الحفر وحتى التسليم النهائي.",
+      "icon": "Building2"
+    },
+    {
+      "id": "srv-2",
+      "title": "التشطيبات المتكاملة",
+      "description": "تشطيبات داخلية وخارجية عصرية مع اختيار الخامات والإشراف الكامل على التنفيذ.",
+      "icon": "Paintbrush"
+    },
+    {
+      "id": "srv-3",
+      "title": "إدارة المشروعات",
+      "description": "تخطيط ومتابعة دقيقة للميزانية والجداول الزمنية وضمان الجودة في كل مرحلة.",
+      "icon": "ClipboardCheck"
+    },
+    {
+      "id": "srv-4",
+      "title": "الترميم والصيانة",
+      "description": "ترميم المباني ومعالجة الشروخ والعزل وأعمال الصيانة الدورية باحترافية.",
+      "icon": "Wrench"
+    }
+  ],
+  "projects": [
+    {
+      "id": "prj-1",
+      "title": "فيلا سكنية حديثة",
+      "category": "فلل سكنية",
+      "location": "التجمع الخامس",
+      "description": "تنفيذ متكامل لفيلا عصرية تشمل الهيكل الخرساني والتشطيبات واللاندسكيب.",
+      "image": "/project-villa.svg",
+      "featured": true
+    },
+    {
+      "id": "prj-2",
+      "title": "مبنى إداري متكامل",
+      "category": "مشروعات إدارية",
+      "location": "العاصمة الإدارية",
+      "description": "مبنى إداري بتصميم حديث وأنظمة كهرباء وتكييف وحماية متطورة.",
+      "image": "/project-office.svg",
+      "featured": true
+    },
+    {
+      "id": "prj-3",
+      "title": "تشطيب شقة فاخرة",
+      "category": "تشطيبات",
+      "location": "الشيخ زايد",
+      "description": "تشطيب داخلي كامل يجمع بين البساطة والفخامة مع أفضل الخامات.",
+      "image": "/project-interior.svg",
+      "featured": true
+    }
+  ],
+  "messages": [],
+  "banners": [
+    {
+      "id": "02e6a7fa-4367-4ba7-9e47-af573ed02553",
+      "title": "",
+      "link": "",
+      "image": "/uploads/1783895595793-ac120ebe-8749-43d5-9e97-8ea22c4106e9.png",
+      "active": true
+    },
+    {
+      "id": "bnr-1",
+      "title": "بنر رئيسي 1",
+      "link": "/contact",
+      "image": "/project-villa.svg",
+      "active": true
+    },
+    {
+      "id": "bnr-2",
+      "title": "بنر رئيسي 2",
+      "link": "/projects",
+      "image": "/project-office.svg",
+      "active": true
+    }
+  ]
+}
