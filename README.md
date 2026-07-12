@@ -1,30 +1,23 @@
 # فرست هاوس للمقاولات
 
-موقع عربي متكامل ومتجاوب لشركة مقاولات، يشمل واجهة عامة ولوحة تحكم لإدارة المحتوى.
+موقع عربي متكامل لشركة مقاولات، يحتوي على:
 
-## المميزات
-
-- صفحة رئيسية احترافية متجاوبة مع الموبايل والكمبيوتر.
-- صفحات: من نحن، الخدمات، المشروعات، تواصل معنا.
-- نموذج طلب عرض سعر وتخزين رسائل العملاء.
-- لوحة تحكم محمية بتسجيل دخول.
-- تعديل بيانات الشركة وأرقام التواصل والإحصائيات.
-- إضافة وتعديل وحذف الخدمات.
-- إضافة وتعديل وحذف المشروعات ورفع صورها.
-- قراءة رسائل العملاء وحذفها.
-- شعار فرست هاوس مضاف داخل الموقع.
+- واجهة عامة للموقع
+- لوحة تحكم للإدارة
+- إدارة خدمات ومشروعات ورسائل العملاء
+- بنرات رئيسية قابلة للتعديل
 
 ## التقنيات
 
 - Frontend: React + Vite
 - Backend: Node.js + Express
-- Data Storage: JSON محلي بدون إعداد قاعدة بيانات
+- التخزين: JSON محلي
 - Authentication: JWT
-- Image Upload: Multer
+- رفع الصور: Multer
 
-## التشغيل لأول مرة
+## التشغيل المحلي
 
-يجب تثبيت Node.js 20 أو أحدث.
+يشترط Node.js 20 أو أحدث.
 
 ```bash
 npm install
@@ -34,34 +27,86 @@ npm run dev
 
 ثم افتح:
 
-- الموقع: http://localhost:5173
-- لوحة التحكم: http://localhost:5173/admin/login
+- الواجهة: `http://localhost:5173`
+- لوحة التحكم: `http://localhost:5173/admin/login`
 
 ## بيانات دخول لوحة التحكم
 
 - Email: `admin@firsthouse.com`
 - Password: `Admin@123`
 
-يمكن تغيير البيانات من ملف:
+انسخ ملف:
+
+`server/.env.example`
+
+إلى:
 
 `server/.env`
 
-انسخ أولًا ملف `server/.env.example` باسم `.env` ثم عدّل القيم.
+ثم عدل القيم قبل العمل أو النشر.
 
-## التشغيل كنسخة Production
+## أوامر مهمة
 
 ```bash
+npm run dev
 npm run build
 npm start
 ```
 
-بعد البناء سيعمل الموقع والـ API على:
+## النشر على Vercel
 
-`http://localhost:5000`
+الواجهة الأمامية موجودة داخل مجلد `client`.
+
+إعدادات Vercel:
+
+- Framework Preset: `Vite`
+- Root Directory: `client`
+- Build Command: `npm run build`
+- Output Directory: `dist`
+
+متغيرات البيئة المطلوبة في Vercel:
+
+- `VITE_API_URL=https://your-render-service.onrender.com`
+
+تمت إضافة ملف:
+
+- `client/vercel.json`
+
+وتمت إضافة ملف مثال للمتغيرات:
+
+- `client/.env.example`
+
+## النشر على Render
+
+الخادم موجود داخل مجلد `server`.
+
+تمت إضافة ملف جاهز:
+
+- `render.yaml`
+
+يمكنك إنشاء Web Service على Render من نفس المستودع أو استخدام `Blueprint`.
+
+إعدادات الخدمة:
+
+- Root Directory: `server`
+- Build Command: `npm install`
+- Start Command: `npm start`
+
+متغيرات البيئة المطلوبة في Render:
+
+- `JWT_SECRET`
+- `ADMIN_EMAIL`
+- `ADMIN_PASSWORD`
+- `CLIENT_URL`
+
+مثال `CLIENT_URL`:
+
+- `https://your-project.vercel.app`
 
 ## ملاحظات النشر
 
-- الواجهة مناسبة للنشر على Vercel.
-- الخادم مناسب للنشر على Render أو Railway أو VPS.
-- عند فصل الواجهة عن الخادم، أضف متغير `VITE_API_URL` في الواجهة، وحدّث `CLIENT_URL` في الخادم.
-- غيّر `JWT_SECRET` وكلمة مرور المسؤول قبل نشر الموقع الحقيقي.
+- إذا كانت الواجهة على Vercel والخادم على Render، يجب ضبط:
+  - `VITE_API_URL` في Vercel
+  - `CLIENT_URL` في Render
+- غير `JWT_SECRET` وبيانات الأدمن قبل النشر الفعلي.
+- رفع الصور يتم داخل `server/uploads`، لذلك في Render يفضّل استخدام Persistent Disk إذا كنت تريد الاحتفاظ بالصور بعد إعادة النشر.
