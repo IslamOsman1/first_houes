@@ -11,7 +11,7 @@
 
 - Frontend: React + Vite
 - Backend: Node.js + Express
-- التخزين: JSON محلي
+- التخزين: MongoDB
 - Authentication: JWT
 - رفع الصور: Multer + Cloudinary
 
@@ -98,6 +98,7 @@ npm start
 - `ADMIN_EMAIL`
 - `ADMIN_PASSWORD`
 - `CLIENT_URL`
+- `MONGODB_URI`
 - `CLOUDINARY_CLOUD_NAME`
 - `CLOUDINARY_API_KEY`
 - `CLOUDINARY_API_SECRET`
@@ -113,4 +114,5 @@ npm start
   - `CLIENT_URL` في Render
 - غير `JWT_SECRET` وبيانات الأدمن قبل النشر الفعلي.
 - الصور الجديدة التي تُرفع من لوحة التحكم تُحفظ على Cloudinary مباشرة.
+- عند أول تشغيل مع MongoDB، سيتم نقل البيانات الابتدائية تلقائيًا من الملف `server/data/db.json` إلى قاعدة البيانات إذا كانت القاعدة فارغة.
 - المسار المحلي `server/uploads` ما زال موجودًا فقط لدعم الصور القديمة المخزنة سابقًا داخل المشروع.

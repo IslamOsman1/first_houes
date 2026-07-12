@@ -10,7 +10,7 @@ import bcrypt from 'bcryptjs';
 import { v2 as cloudinary } from 'cloudinary';
 import { fileURLToPath } from 'node:url';
 import { randomUUID } from 'node:crypto';
-import { readDb, updateDb } from './store.js';
+import { connectDb, readDb, updateDb } from './store.js';
 import { requireAuth, signToken } from './auth.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -209,4 +209,11 @@ app.use((error, _, res, __) => {
   res.status(500).json({ message: 'حدث خطأ غير متوقع في الخادم' });
 });
 
-app.listen(PORT, () => console.log(`First House API running on http://localhost:${PORT}`));
+connectDb()
+  .then(() => {
+    app.listen(PORT, () => console.log(`First House API running on http://localhost:${PORT}`));
+  })
+  .catch((error) => {
+    console.error('Failed to connect to MongoDB', error);
+    process.exit(1);
+  });
