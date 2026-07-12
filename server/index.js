@@ -7,6 +7,7 @@ import multer from 'multer';
 import path from 'node:path';
 import fs from 'node:fs';
 import bcrypt from 'bcryptjs';
+import { v2 as cloudinary } from 'cloudinary';
 import { fileURLToPath } from 'node:url';
 import { randomUUID } from 'node:crypto';
 import { readDb, updateDb } from './store.js';
@@ -16,6 +17,19 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
 const PORT = Number(process.env.PORT || 5000);
 const CLIENT_URL = process.env.CLIENT_URL || 'http://localhost:5173';
+const hasCloudinaryConfig = Boolean(
+  process.env.CLOUDINARY_CLOUD_NAME &&
+  process.env.CLOUDINARY_API_KEY &&
+  process.env.CLOUDINARY_API_SECRET
+);
+
+if (hasCloudinaryConfig) {
+  cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET
+  });
+}
 
 app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
 const allowedOrigins = CLIENT_URL.split(',').map(v => v.trim());
@@ -28,18 +42,34 @@ app.use(express.urlencoded({ extended: true }));
 app.use(morgan('dev'));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-const storage = multer.diskStorage({
-  destination: (_, __, cb) => cb(null, path.join(__dirname, 'uploads')),
-  filename: (_, file, cb) => {
-    const safeExt = path.extname(file.originalname).toLowerCase() || '.jpg';
-    cb(null, `${Date.now()}-${randomUUID()}${safeExt}`);
-  }
-});
 const upload = multer({
-  storage,
+  storage: multer.memoryStorage(),
   limits: { fileSize: 5 * 1024 * 1024 },
   fileFilter: (_, file, cb) => cb(null, /^image\//.test(file.mimetype))
 });
+
+function uploadToCloudinary(file) {
+  return new Promise((resolve, reject) => {
+    const safeBaseName = path.parse(file.originalname).name
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '') || `image-${Date.now()}`;
+
+    const stream = cloudinary.uploader.upload_stream(
+      {
+        folder: 'first-house',
+        resource_type: 'image',
+        public_id: `${safeBaseName}-${randomUUID()}`
+      },
+      (error, result) => {
+        if (error) return reject(error);
+        resolve(result);
+      }
+    );
+
+    stream.end(file.buffer);
+  });
+}
 
 app.get('/api/health', (_, res) => res.json({ ok: true }));
 app.get('/api/public', async (_, res, next) => {
@@ -140,9 +170,18 @@ app.delete('/api/admin/banners/:id', requireAuth, async (req, res, next) => {
   } catch (error) { next(error); }
 });
 
-app.post('/api/admin/upload', requireAuth, upload.single('image'), (req, res) => {
-  if (!req.file) return res.status(400).json({ message: 'اختر صورة صالحة' });
-  res.status(201).json({ url: `/uploads/${req.file.filename}` });
+app.post('/api/admin/upload', requireAuth, upload.single('image'), async (req, res, next) => {
+  try {
+    if (!req.file) return res.status(400).json({ message: 'اختر صورة صالحة' });
+    if (!hasCloudinaryConfig) {
+      return res.status(500).json({ message: 'إعدادات Cloudinary غير مكتملة في الخادم' });
+    }
+
+    const result = await uploadToCloudinary(req.file);
+    res.status(201).json({ url: result.secure_url });
+  } catch (error) {
+    next(error);
+  }
 });
 
 app.put('/api/admin/messages/:id/read', requireAuth, async (req, res, next) => {

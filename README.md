@@ -13,7 +13,7 @@
 - Backend: Node.js + Express
 - التخزين: JSON محلي
 - Authentication: JWT
-- رفع الصور: Multer
+- رفع الصور: Multer + Cloudinary
 
 ## التشغيل المحلي
 
@@ -98,6 +98,9 @@ npm start
 - `ADMIN_EMAIL`
 - `ADMIN_PASSWORD`
 - `CLIENT_URL`
+- `CLOUDINARY_CLOUD_NAME`
+- `CLOUDINARY_API_KEY`
+- `CLOUDINARY_API_SECRET`
 
 مثال `CLIENT_URL`:
 
@@ -109,4 +112,5 @@ npm start
   - `VITE_API_URL` في Vercel
   - `CLIENT_URL` في Render
 - غير `JWT_SECRET` وبيانات الأدمن قبل النشر الفعلي.
-- رفع الصور يتم داخل `server/uploads`، لذلك في Render يفضّل استخدام Persistent Disk إذا كنت تريد الاحتفاظ بالصور بعد إعادة النشر.
+- الصور الجديدة التي تُرفع من لوحة التحكم تُحفظ على Cloudinary مباشرة.
+- المسار المحلي `server/uploads` ما زال موجودًا فقط لدعم الصور القديمة المخزنة سابقًا داخل المشروع.
