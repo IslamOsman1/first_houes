@@ -1,10 +1,11 @@
-import { BarChart3, Building2, Check, Edit3, Eye, ImagePlus, Images, Inbox, LogOut, Menu, Plus, Save, Settings, Trash2, Wrench, X } from 'lucide-react';
+import { BarChart3, Building2, Check, Edit3, Eye, ImagePlus, Images, Inbox, LogOut, Menu, Plus, Save, Settings, Trash2, UserRound, Wrench, X } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { api, mediaUrl } from '../utils/api';
+import { api, mediaUrl, projectCover, projectImages } from '../utils/api';
 
 const emptyService = { title: '', description: '', icon: 'Building2' };
-const emptyProject = { title: '', category: '', location: '', description: '', image: '/project-villa.svg', featured: true };
+const emptyProject = { title: '', category: '', location: '', description: '', image: '/project-villa.svg', images: ['/project-villa.svg'], featured: true };
+const emptyTeamMember = { name: '', role: '', image: '/team-avatar.svg', bio: '' };
 const emptyBanner = { title: '', link: '', image: '', active: true };
 
 const settingsFields = [
@@ -26,20 +27,34 @@ const settingsFields = [
 
 const fullWidthSettingsFields = ['heroText', 'address'];
 
+const normalizeProject = project => {
+  const images = projectImages(project);
+  const primaryImage = images[0] || project.image || '/project-villa.svg';
+
+  return {
+    ...project,
+    image: primaryImage,
+    images: images.length ? images : [primaryImage]
+  };
+};
+
 export default function AdminDashboard() {
   const navigate = useNavigate();
   const [tab, setTab] = useState('overview');
   const [openMenu, setOpenMenu] = useState(false);
-  const [data, setData] = useState({ settings: {}, services: [], projects: [], messages: [], banners: [] });
+  const [data, setData] = useState({ settings: {}, services: [], projects: [], team: [], messages: [], banners: [] });
   const [loading, setLoading] = useState(true);
   const [notice, setNotice] = useState('');
   const [serviceForm, setServiceForm] = useState(emptyService);
   const [serviceEditId, setServiceEditId] = useState(null);
   const [projectForm, setProjectForm] = useState(emptyProject);
   const [projectEditId, setProjectEditId] = useState(null);
+  const [teamForm, setTeamForm] = useState(emptyTeamMember);
+  const [teamEditId, setTeamEditId] = useState(null);
   const [bannerForm, setBannerForm] = useState(emptyBanner);
   const [bannerEditId, setBannerEditId] = useState(null);
   const [uploading, setUploading] = useState(false);
+  const [teamUploading, setTeamUploading] = useState(false);
   const [bannerUploading, setBannerUploading] = useState(false);
 
   const loadData = async () => {
@@ -47,6 +62,8 @@ export default function AdminDashboard() {
       const response = await api.get('/api/admin/data');
       setData({
         ...response.data,
+        projects: (response.data.projects || []).map(normalizeProject),
+        team: response.data.team || [],
         banners: response.data.banners || []
       });
     } catch (error) {
@@ -122,18 +139,19 @@ export default function AdminDashboard() {
 
   const submitProject = async e => {
     e.preventDefault();
+    const preparedProject = normalizeProject(projectForm);
     const response = projectEditId
-      ? await api.put(`/api/admin/projects/${projectEditId}`, projectForm)
-      : await api.post('/api/admin/projects', projectForm);
+      ? await api.put(`/api/admin/projects/${projectEditId}`, preparedProject)
+      : await api.post('/api/admin/projects', preparedProject);
 
-    setData(prev => ({ ...prev, projects: response.data }));
+    setData(prev => ({ ...prev, projects: response.data.map(normalizeProject) }));
     setProjectForm(emptyProject);
     setProjectEditId(null);
     showNotice(projectEditId ? 'تم تعديل المشروع' : 'تمت إضافة المشروع');
   };
 
   const editProject = item => {
-    setProjectForm(item);
+    setProjectForm(normalizeProject(item));
     setProjectEditId(item.id);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -141,7 +159,7 @@ export default function AdminDashboard() {
   const deleteProject = async id => {
     if (!confirm('هل تريد حذف هذا المشروع؟')) return;
     const response = await api.delete(`/api/admin/projects/${id}`);
-    setData(prev => ({ ...prev, projects: response.data }));
+    setData(prev => ({ ...prev, projects: response.data.map(normalizeProject) }));
     showNotice('تم حذف المشروع');
   };
 
@@ -160,6 +178,94 @@ export default function AdminDashboard() {
       showNotice(error.response?.data?.message || 'تعذر رفع الصورة');
     } finally {
       setUploading(false);
+    }
+  };
+
+  const uploadProjectImages = async e => {
+    const files = Array.from(e.target.files || []);
+    if (!files.length) return;
+
+    setUploading(true);
+    try {
+      const uploadedUrls = [];
+
+      for (const file of files) {
+        const body = new FormData();
+        body.append('image', file);
+        const response = await api.post('/api/admin/upload', body);
+        uploadedUrls.push(response.data.url);
+      }
+
+      setProjectForm(prev => {
+        const currentImages = Array.isArray(prev.images) ? prev.images.filter(Boolean) : [];
+        const nextImages = [...currentImages, ...uploadedUrls];
+        return {
+          ...prev,
+          image: nextImages[0] || '',
+          images: nextImages
+        };
+      });
+
+      showNotice(uploadedUrls.length > 1 ? 'تم رفع صور المشروع' : 'تم رفع صورة المشروع');
+    } catch (error) {
+      showNotice(error.response?.data?.message || 'تعذر رفع الصور');
+    } finally {
+      setUploading(false);
+      e.target.value = '';
+    }
+  };
+
+  const removeProjectImage = imageToRemove => {
+    setProjectForm(prev => {
+      const nextImages = (prev.images || []).filter(image => image !== imageToRemove);
+      return {
+        ...prev,
+        image: nextImages[0] || '',
+        images: nextImages
+      };
+    });
+  };
+
+  const submitTeamMember = async e => {
+    e.preventDefault();
+    const response = teamEditId
+      ? await api.put(`/api/admin/team/${teamEditId}`, teamForm)
+      : await api.post('/api/admin/team', teamForm);
+
+    setData(prev => ({ ...prev, team: response.data }));
+    setTeamForm(emptyTeamMember);
+    setTeamEditId(null);
+    showNotice(teamEditId ? 'تم تعديل عضو الفريق' : 'تمت إضافة عضو الفريق');
+  };
+
+  const editTeamMember = item => {
+    setTeamForm(item);
+    setTeamEditId(item.id);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const deleteTeamMember = async id => {
+    if (!confirm('هل تريد حذف عضو الفريق؟')) return;
+    const response = await api.delete(`/api/admin/team/${id}`);
+    setData(prev => ({ ...prev, team: response.data }));
+    showNotice('تم حذف عضو الفريق');
+  };
+
+  const uploadTeamImage = async e => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setTeamUploading(true);
+    try {
+      const body = new FormData();
+      body.append('image', file);
+      const response = await api.post('/api/admin/upload', body);
+      setTeamForm(prev => ({ ...prev, image: response.data.url }));
+      showNotice('تم رفع صورة عضو الفريق');
+    } catch (error) {
+      showNotice(error.response?.data?.message || 'تعذر رفع صورة عضو الفريق');
+    } finally {
+      setTeamUploading(false);
     }
   };
 
@@ -227,6 +333,7 @@ export default function AdminDashboard() {
     ['settings', 'إعدادات الموقع', Settings],
     ['banners', 'البنرات', Images],
     ['services', 'الخدمات', Wrench],
+    ['team', 'فريق العمل', UserRound],
     ['projects', 'المشروعات', Building2],
     ['messages', 'الرسائل', Inbox]
   ];
@@ -567,6 +674,104 @@ export default function AdminDashboard() {
           </section>
         )}
 
+        {tab === 'team' && (
+          <section className="admin-content two-column-admin">
+            <form className="admin-panel admin-form sticky-form" onSubmit={submitTeamMember}>
+              <div className="panel-title">
+                <div>
+                  <h2>{teamEditId ? 'تعديل عضو الفريق' : 'إضافة عضو للفريق'}</h2>
+                  <p>أضف أعضاء فريق العمل الذين يظهرون في صفحة الفريق داخل الموقع.</p>
+                </div>
+              </div>
+
+              <label>
+                اسم العضو
+                <input
+                  value={teamForm.name}
+                  onChange={e => setTeamForm({ ...teamForm, name: e.target.value })}
+                  required
+                />
+              </label>
+
+              <label>
+                المسمى الوظيفي
+                <input
+                  value={teamForm.role}
+                  onChange={e => setTeamForm({ ...teamForm, role: e.target.value })}
+                  required
+                />
+              </label>
+
+              <label>
+                نبذة مختصرة
+                <textarea
+                  rows="4"
+                  value={teamForm.bio}
+                  onChange={e => setTeamForm({ ...teamForm, bio: e.target.value })}
+                  required
+                />
+              </label>
+
+              <label className="upload-box">
+                <ImagePlus />
+                <span>{teamUploading ? 'جاري رفع الصورة...' : 'رفع صورة العضو'}</span>
+                <input type="file" accept="image/*" onChange={uploadTeamImage} disabled={teamUploading} />
+              </label>
+
+              {teamForm.image && <img className="image-preview" src={mediaUrl(teamForm.image)} alt="معاينة صورة العضو" />}
+
+              <div className="form-actions">
+                <button className="btn btn-primary">
+                  <Plus size={18} /> {teamEditId ? 'حفظ التعديل' : 'إضافة العضو'}
+                </button>
+                {teamEditId && (
+                  <button
+                    type="button"
+                    className="btn btn-ghost"
+                    onClick={() => {
+                      setTeamForm(emptyTeamMember);
+                      setTeamEditId(null);
+                    }}
+                  >
+                    إلغاء
+                  </button>
+                )}
+              </div>
+            </form>
+
+            <div className="admin-panel">
+              <div className="panel-title">
+                <div>
+                  <h2>أعضاء الفريق الحاليون</h2>
+                  <p>{data.team.length} أعضاء مضافون</p>
+                </div>
+              </div>
+
+              <div className="admin-project-list">
+                {data.team.map(item => (
+                  <article key={item.id}>
+                    <img src={mediaUrl(item.image)} alt={item.name} />
+                    <div>
+                      <span>{item.role}</span>
+                      <h3>{item.name}</h3>
+                      <p>{item.bio}</p>
+                    </div>
+                    <div className="list-actions">
+                      <button onClick={() => editTeamMember(item)}>
+                        <Edit3 />
+                      </button>
+                      <button className="danger" onClick={() => deleteTeamMember(item.id)}>
+                        <Trash2 />
+                      </button>
+                    </div>
+                  </article>
+                ))}
+                {data.team.length === 0 && <div className="empty-state">لا يوجد أعضاء فريق مضافون حتى الآن.</div>}
+              </div>
+            </div>
+          </section>
+        )}
+
         {tab === 'projects' && (
           <section className="admin-content two-column-admin">
             <form className="admin-panel admin-form sticky-form" onSubmit={submitProject}>
@@ -618,10 +823,21 @@ export default function AdminDashboard() {
               <label className="upload-box">
                 <ImagePlus />
                 <span>{uploading ? 'جاري رفع الصورة...' : 'رفع صورة للمشروع'}</span>
-                <input type="file" accept="image/*" onChange={uploadImage} disabled={uploading} />
+                <input type="file" accept="image/*" multiple onChange={uploadProjectImages} disabled={uploading} />
               </label>
 
-              {projectForm.image && <img className="image-preview" src={mediaUrl(projectForm.image)} alt="معاينة" />}
+              {!!projectForm.images?.length && (
+                <div className="project-images-preview">
+                  {projectForm.images.map((image, index) => (
+                    <div className="project-thumb-card" key={`${image}-${index}`}>
+                      <img className="image-preview" src={mediaUrl(image)} alt={`معاينة ${index + 1}`} />
+                      <button type="button" onClick={() => removeProjectImage(image)}>
+                        حذف
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
 
               <label className="checkbox-label">
                 <input
@@ -662,11 +878,11 @@ export default function AdminDashboard() {
               <div className="admin-project-list">
                 {data.projects.map(item => (
                   <article key={item.id}>
-                    <img src={mediaUrl(item.image)} alt={item.title} />
+                    <img src={projectCover(item)} alt={item.title} />
                     <div>
                       <span>{item.category}</span>
                       <h3>{item.title}</h3>
-                      <p>{item.location}</p>
+                      <p>{item.location} - {projectImages(item).length} صور</p>
                     </div>
                     <div className="list-actions">
                       <button onClick={() => editProject(item)}>

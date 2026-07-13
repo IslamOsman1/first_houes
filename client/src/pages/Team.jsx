@@ -1,37 +1,8 @@
-import { ArrowLeft, Award, Briefcase, HardHat, ShieldCheck, UserRound } from 'lucide-react';
+import { ArrowLeft, ShieldCheck } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import PageHero from '../components/PageHero';
-
-const teamMembers = [
-  {
-    name: 'م. أحمد خالد',
-    role: 'المدير التنفيذي',
-    image: '/team-avatar.svg',
-    icon: Briefcase,
-    bio: 'يقود التخطيط العام للمشروعات ويضمن وضوح نطاق العمل والالتزام بأهداف العميل من البداية وحتى التسليم.'
-  },
-  {
-    name: 'م. سارة محمد',
-    role: 'مديرة التصميم والتنفيذ',
-    image: '/team-avatar.svg',
-    icon: Award,
-    bio: 'تتابع التفاصيل المعمارية والتشطيبات وتعمل على تحويل التصورات إلى حلول عملية قابلة للتنفيذ بدقة.'
-  },
-  {
-    name: 'م. عمر حسن',
-    role: 'مهندس موقع',
-    image: '/team-avatar.svg',
-    icon: HardHat,
-    bio: 'يشرف على سير العمل اليومي داخل الموقع وينسق بين الفرق الفنية والموردين لضمان جودة التنفيذ.'
-  },
-  {
-    name: 'أ. نورا علي',
-    role: 'مسؤولة خدمة العملاء',
-    image: '/team-avatar.svg',
-    icon: UserRound,
-    bio: 'تتابع استفسارات العملاء وتنسق المواعيد والتحديثات الدورية لضمان تجربة تواصل واضحة وسريعة.'
-  }
-];
+import { useSite } from '../context/SiteContext';
+import { mediaUrl } from '../utils/api';
 
 const teamValues = [
   'تنسيق يومي بين الإدارة والهندسة والتنفيذ.',
@@ -41,6 +12,8 @@ const teamValues = [
 ];
 
 export default function Team() {
+  const { team } = useSite();
+
   return (
     <main>
       <PageHero
@@ -54,23 +27,20 @@ export default function Team() {
             <span>خبرات متكاملة</span>
             <h2>فريق يجمع بين الإدارة والهندسة والتنفيذ</h2>
             <p>
-              نجاح أي مشروع لا يعتمد على فرد واحد، بل على فريق منظم يعرف كيف ينسق بين التفاصيل الفنية،
-              الجدول الزمني، ومتطلبات العميل في كل خطوة.
+              نجاح أي مشروع لا يعتمد على فرد واحد، بل على فريق منظم يعرف كيف ينسق بين التفاصيل الفنية، الجدول الزمني،
+              ومتطلبات العميل في كل خطوة.
             </p>
           </div>
 
           <div className="team-grid">
-            {teamMembers.map(({ name, role, bio, image, icon: Icon }) => (
-              <article className="team-card" key={name}>
+            {team.map(member => (
+              <article className="team-card" key={member.id}>
                 <div className="team-card-top">
-                  <img className="team-card-photo" src={image} alt={name} />
-                  <div className="team-card-icon">
-                    <Icon />
-                  </div>
+                  <img className="team-card-photo" src={mediaUrl(member.image)} alt={member.name} />
                 </div>
-                <h3>{name}</h3>
-                <strong>{role}</strong>
-                <p>{bio}</p>
+                <h3>{member.name}</h3>
+                <strong>{member.role}</strong>
+                <p>{member.bio}</p>
               </article>
             ))}
           </div>
@@ -83,8 +53,7 @@ export default function Team() {
             <span className="section-kicker">كيف نعمل</span>
             <h2>العمل الجماعي هو أساس الجودة</h2>
             <p>
-              نؤمن أن أفضل النتائج تأتي عندما تكون الأدوار واضحة، والتواصل سريع، والمتابعة مستمرة
-              بين جميع أفراد الفريق.
+              نؤمن أن أفضل النتائج تأتي عندما تكون الأدوار واضحة، والتواصل سريع، والمتابعة مستمرة بين جميع أفراد الفريق.
             </p>
             <div className="check-list">
               {teamValues.map(item => (
@@ -102,8 +71,7 @@ export default function Team() {
               <strong>جاهزون لنجاح مشروعك</strong>
             </div>
             <p>
-              من أول زيارة معاينة وحتى آخر لمسة في التسليم، يعمل فريقنا بروح واحدة لتقديم تجربة تنفيذ
-              أكثر وضوحًا وانضباطًا.
+              من أول زيارة معاينة وحتى آخر لمسة في التسليم، يعمل فريقنا بروح واحدة لتقديم تجربة تنفيذ أكثر وضوحًا وانضباطًا.
             </p>
           </div>
         </div>

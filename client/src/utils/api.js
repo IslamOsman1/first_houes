@@ -23,3 +23,14 @@ export function mediaUrl(value) {
   if (value.startsWith('/uploads/')) return `${import.meta.env.VITE_API_URL || ''}${value}`;
   return value;
 }
+
+export function projectImages(project) {
+  if (!project) return [];
+  if (Array.isArray(project.images) && project.images.length) return project.images.filter(Boolean);
+  if (project.image) return [project.image];
+  return [];
+}
+
+export function projectCover(project) {
+  return mediaUrl(projectImages(project)[0] || '');
+}

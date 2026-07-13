@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import Loading from '../components/Loading';
 import ServiceIcon from '../components/ServiceIcon';
 import { useSite } from '../context/SiteContext';
-import { mediaUrl } from '../utils/api';
+import { mediaUrl, projectCover } from '../utils/api';
 
 export default function Home() {
   const { settings, services, projects, banners, loading } = useSite();
@@ -186,7 +186,7 @@ export default function Home() {
           <div className="projects-grid">
             {projects.slice(0, 3).map(project => (
               <article className="project-card" key={project.id}>
-                <img src={mediaUrl(project.image)} alt={project.title} />
+                <img src={projectCover(project)} alt={project.title} />
                 <div className="project-overlay">
                   <span>{project.category}</span>
                   <h3>{project.title}</h3>

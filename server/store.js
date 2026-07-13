@@ -17,6 +17,7 @@ const siteContentSchema = new mongoose.Schema(
     settings: { type: mongoose.Schema.Types.Mixed, default: {} },
     services: { type: [mongoose.Schema.Types.Mixed], default: [] },
     projects: { type: [mongoose.Schema.Types.Mixed], default: [] },
+    team: { type: [mongoose.Schema.Types.Mixed], default: [] },
     messages: { type: [mongoose.Schema.Types.Mixed], default: [] },
     banners: { type: [mongoose.Schema.Types.Mixed], default: [] }
   },
@@ -34,6 +35,7 @@ function normalizeDb(doc) {
     settings: doc?.settings || {},
     services: Array.isArray(doc?.services) ? doc.services : [],
     projects: Array.isArray(doc?.projects) ? doc.projects : [],
+    team: Array.isArray(doc?.team) ? doc.team : [],
     messages: Array.isArray(doc?.messages) ? doc.messages : [],
     banners: Array.isArray(doc?.banners) ? doc.banners : []
   };

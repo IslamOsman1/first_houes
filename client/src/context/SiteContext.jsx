@@ -4,7 +4,7 @@ import { api } from '../utils/api';
 const SiteContext = createContext(null);
 
 export function SiteProvider({ children }) {
-  const [data, setData] = useState({ settings: {}, services: [], projects: [], banners: [] });
+  const [data, setData] = useState({ settings: {}, services: [], projects: [], team: [], banners: [] });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 

@@ -75,7 +75,7 @@ app.get('/api/health', (_, res) => res.json({ ok: true }));
 app.get('/api/public', async (_, res, next) => {
   try {
     const db = await readDb();
-    res.json({ settings: db.settings, services: db.services, projects: db.projects, banners: db.banners || [] });
+    res.json({ settings: db.settings, services: db.services, projects: db.projects, team: db.team || [], banners: db.banners || [] });
   } catch (error) { next(error); }
 });
 
@@ -147,6 +147,35 @@ app.delete('/api/admin/projects/:id', requireAuth, async (req, res, next) => {
   try {
     const db = await updateDb(db => { db.projects = db.projects.filter(item => item.id !== req.params.id); return db; });
     res.json(db.projects);
+  } catch (error) { next(error); }
+});
+
+app.post('/api/admin/team', requireAuth, async (req, res, next) => {
+  try {
+    const item = {
+      id: randomUUID(),
+      name: req.body.name,
+      role: req.body.role,
+      image: req.body.image || '/team-avatar.svg',
+      bio: req.body.bio
+    };
+    const db = await updateDb(db => { db.team = db.team || []; db.team.unshift(item); return db; });
+    res.status(201).json(db.team);
+  } catch (error) { next(error); }
+});
+app.put('/api/admin/team/:id', requireAuth, async (req, res, next) => {
+  try {
+    const db = await updateDb(db => {
+      db.team = (db.team || []).map(item => item.id === req.params.id ? { ...item, ...req.body, id: item.id } : item);
+      return db;
+    });
+    res.json(db.team);
+  } catch (error) { next(error); }
+});
+app.delete('/api/admin/team/:id', requireAuth, async (req, res, next) => {
+  try {
+    const db = await updateDb(db => { db.team = (db.team || []).filter(item => item.id !== req.params.id); return db; });
+    res.json(db.team);
   } catch (error) { next(error); }
 });
 
