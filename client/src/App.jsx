@@ -22,7 +22,7 @@ export default function App() {
     <>
       <ScrollToTop />
       {!isAdmin && <Navbar />}
-      <Routes>
+      <Routes location={location} key={location.pathname}>
         <Route path="/" element={<Home />} />
         <Route path="/about" element={<About />} />
         <Route path="/team" element={<Team />} />
