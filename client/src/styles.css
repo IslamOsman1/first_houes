@@ -59,7 +59,8 @@ img { max-width: 100%; display: block; }
 
 .hero { position: relative; overflow: hidden; min-height: 690px; background: linear-gradient(120deg, #06284f, #0b467e 67%, #0c5d56); color: #fff; display: flex; align-items: center; }
 .hero::before { content: ''; position: absolute; width: 500px; height: 500px; border: 100px solid rgba(255,255,255,.04); border-radius: 50%; left: -150px; top: -220px; }
-.hero-pattern { position: absolute; inset: 0; opacity: .09; background-image: linear-gradient(rgba(255,255,255,.8) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.8) 1px, transparent 1px); background-size: 46px 46px; mask-image: linear-gradient(to left, transparent, black); }
+.hero-pattern { position: absolute; inset: 0; opacity: .09; background-image: linear-gradient(rgba(255,255,255,.8) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.8) 1px, transparent 1px); background-size: 46px 46px; mask-image: linear-gradient(to left, transparent, black); pointer-events: none; }
+.hero .container { position: relative; z-index: 1; }
 .hero-grid { position: relative; z-index: 2; display: grid; grid-template-columns: 1.08fr .92fr; gap: 65px; align-items: center; }
 .eyebrow { display: inline-flex; align-items: center; gap: 8px; background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.16); padding: 8px 14px; border-radius: 100px; font-weight: 700; }
 .hero h1 { font-size: clamp(44px, 6vw, 74px); line-height: 1.25; margin: 20px 0 14px; letter-spacing: -.8px; }

@@ -1,11 +1,13 @@
 import { ChevronLeft, ChevronRight, MapPin, X } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import PageHero from '../components/PageHero';
 import { useSite } from '../context/SiteContext';
 import { mediaUrl, projectCover, projectImages } from '../utils/api';
 
 export default function Projects() {
   const { projects } = useSite();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [filter, setFilter] = useState('الكل');
   const [activeProject, setActiveProject] = useState(null);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
@@ -13,6 +15,16 @@ export default function Projects() {
   const categories = useMemo(() => ['الكل', ...new Set(projects.map(p => p.category))], [projects]);
   const filtered = filter === 'الكل' ? projects : projects.filter(p => p.category === filter);
   const activeImages = activeProject ? projectImages(activeProject) : [];
+  const selectedCategory = searchParams.get('category');
+
+  useEffect(() => {
+    if (!selectedCategory) {
+      setFilter('الكل');
+      return;
+    }
+
+    setFilter(categories.includes(selectedCategory) ? selectedCategory : 'الكل');
+  }, [categories, selectedCategory]);
 
   const openProjectGallery = project => {
     setActiveProject(project);
@@ -34,6 +46,16 @@ export default function Projects() {
     setActiveImageIndex(prev => (prev - 1 + activeImages.length) % activeImages.length);
   };
 
+  const changeFilter = category => {
+    setFilter(category);
+    if (category === 'الكل') {
+      setSearchParams({});
+      return;
+    }
+
+    setSearchParams({ category });
+  };
+
   return (
     <main>
       <PageHero title="مشروعاتنا" text="نماذج من أعمالنا في المشروعات السكنية والإدارية والتشطيبات." />
@@ -42,7 +64,7 @@ export default function Projects() {
         <div className="container">
           <div className="filter-tabs">
             {categories.map(category => (
-              <button className={filter === category ? 'active' : ''} key={category} onClick={() => setFilter(category)}>
+              <button className={filter === category ? 'active' : ''} key={category} onClick={() => changeFilter(category)}>
                 {category}
               </button>
             ))}

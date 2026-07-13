@@ -185,14 +185,18 @@ export default function Home() {
           </div>
           <div className="projects-grid">
             {projects.slice(0, 3).map(project => (
-              <article className="project-card" key={project.id}>
+              <Link
+                className="project-card"
+                key={project.id}
+                to={`/projects?category=${encodeURIComponent(project.category)}`}
+              >
                 <img src={projectCover(project)} alt={project.title} />
                 <div className="project-overlay">
                   <span>{project.category}</span>
                   <h3>{project.title}</h3>
                   <p>{project.location}</p>
                 </div>
-              </article>
+              </Link>
             ))}
           </div>
         </div>
